@@ -3,80 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoodBingo</title>
-    <!-- Include Telegram Web App SDK -->
+    <title>GoodBingo Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #eef2f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f4f8;
             margin: 0;
+            padding: 0;
             display: flex;
+            flex-direction: column;
             height: 100vh;
+            color: #333;
         }
-        .board {
-            width: 50%;
-            background: white;
+        /* Top Stats Bar */
+        .top-bar {
+            background-color: #1a2634;
+            color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 5px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .top-bar div span {
+            display: block;
+            font-size: 11px;
+            color: #a0aec0;
+            text-transform: uppercase;
+        }
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        /* Left: Bingo Grid */
+        .board-container {
+            width: 55%;
+            background: #ffffff;
+            padding: 8px;
+            overflow-y: auto;
+            border-right: 1px solid #e2e8f0;
+        }
+        .bingo-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 2px;
-            padding: 5px;
+            gap: 3px;
         }
-        .header { font-weight: bold; text-align: center; background: #2b5278; color: white; padding: 5px 0; }
-        .cell { border: 1px solid #ccc; text-align: center; padding: 4px 0; font-size: 12px; font-weight: bold; }
-        .drawn { background-color: #ffc107; }
-        .sidebar {
-            width: 50%;
+        .col-header {
+            text-align: center;
+            font-weight: bold;
+            background: #1e3a8a;
+            color: white;
+            padding: 6px 0;
+            font-size: 14px;
+            border-radius: 3px;
+        }
+        .cell {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+        /* Highlight states */
+        .cell.drawn {
+            background-color: #fbbf24;
+            color: #000;
+            border-color: #f59e0b;
+        }
+        /* Right: Live Call & Status Panel */
+        .status-panel {
+            width: 45%;
+            background: #e2e8f0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 15px;
+            text-align: center;
         }
-        .ball {
-            width: 60px;
-            height: 60px;
+        .history-balls {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .history-ball {
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            background: #28a745;
             color: white;
+            font-size: 10px;
+            font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .ball-green { background: #16a34a; }
+        .ball-red { background: #dc2626; }
+        .ball-blue { background: #2563eb; }
+
+        .current-ball-circle {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #16a34a;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             margin-bottom: 20px;
+            border: 4px solid #fff;
+        }
+        .current-ball-circle span {
+            font-size: 10px;
+            font-weight: normal;
+            opacity: 0.8;
+        }
+        .waiting-box {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .waiting-box h4 {
+            margin: 0 0 8px 0;
+            font-size: 13px;
+            color: #1e293b;
+        }
+        .waiting-box p {
+            margin: 0;
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
 
-    <div class="board" id="bingoBoard"></div>
+    <!-- Top Status Bar -->
+    <div class="top-bar">
+        <div><span>Derash</span>1424 ETB</div>
+        <div><span>Balls</span>19/75</div>
+        <div><span>Players</span>178</div>
+    </div>
 
-    <div class="sidebar">
-        <div class="ball" id="currentBall">G-46</div>
-        <h3>GAME IN PROGRESS</h3>
-        <p style="text-align: center; color: #666;">PLEASE WAIT FOR THE NEXT BUYING ROUND TO JOIN.</p>
+    <!-- Main Game View -->
+    <div class="main-container">
+        <!-- Left Side: 1-75 Bingo Card Board -->
+        <div class="board-container">
+            <div class="bingo-grid" id="bingoGrid">
+                <!-- Headers -->
+                <div class="col-header">B</div>
+                <div class="col-header">I</div>
+                <div class="col-header">N</div>
+                <div class="col-header">G</div>
+                <div class="col-header">O</div>
+            </div>
+        </div>
+
+        <!-- Right Side: Live Draw & Info -->
+        <div class="status-panel">
+            <!-- Recent history balls -->
+            <div class="history-balls">
+                <div class="history-ball ball-green">G58</div>
+                <div class="history-ball ball-red">I26</div>
+                <div class="history-ball ball-blue">B1</div>
+            </div>
+
+            <!-- Current Active Ball Call -->
+            <div class="current-ball-circle">
+                G-46
+            </div>
+
+            <!-- Status message -->
+            <div class="waiting-box">
+                <h4>GAME IN PROGRESS</h4>
+                <p>PLEASE WAIT FOR THE NEXT BUYING ROUND TO JOIN.</p>
+            </div>
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Expand WebApp to full screen
+        tg.expand();
 
-        // Build 1-75 BINGO grid dynamically
-        const board = document.getElementById('bingoBoard');
-        const headers = ['B', 'I', 'N', 'G', 'O'];
-        headers.forEach(h => {
-            const div = document.createElement('div');
-            div.className = 'header';
-            div.innerText = h;
-            board.appendChild(div);
-        });
+        // Dynamically build numbers 1 to 75 mapped under columns
+        const grid = document.getElementById('bingoGrid');
+        
+        // Example array of currently drawn numbers matching your screenshot
+        const drawnNumbers = [1, 5, 7, 8, 11, 14, 16, 20, 22, 23, 26, 31, 33, 36, 46, 50, 58, 60, 68];
 
         for (let i = 1; i <= 75; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             cell.innerText = i;
-            board.appendChild(cell);
+            
+            // Highlight drawn numbers
+            if (drawnNumbers.includes(i)) {
+                cell.classList.add('drawn');
+            }
+            grid.appendChild(cell);
         }
     </script>
 </body>
