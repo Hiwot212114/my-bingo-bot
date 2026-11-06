@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodBingo</title>
+    <!-- Include Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f5;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+        .board {
+            width: 50%;
+            background: white;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            padding: 5px;
+        }
+        .header { font-weight: bold; text-align: center; background: #2b5278; color: white; padding: 5px 0; }
+        .cell { border: 1px solid #ccc; text-align: center; padding: 4px 0; font-size: 12px; font-weight: bold; }
+        .drawn { background-color: #ffc107; }
+        .sidebar {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        .ball {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #28a745;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="board" id="bingoBoard"></div>
+
+    <div class="sidebar">
+        <div class="ball" id="currentBall">G-46</div>
+        <h3>GAME IN PROGRESS</h3>
+        <p style="text-align: center; color: #666;">PLEASE WAIT FOR THE NEXT BUYING ROUND TO JOIN.</p>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Expand WebApp to full screen
+
+        // Build 1-75 BINGO grid dynamically
+        const board = document.getElementById('bingoBoard');
+        const headers = ['B', 'I', 'N', 'G', 'O'];
+        headers.forEach(h => {
+            const div = document.createElement('div');
+            div.className = 'header';
+            div.innerText = h;
+            board.appendChild(div);
+        });
+
+        for (let i = 1; i <= 75; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.innerText = i;
+            board.appendChild(cell);
+        }
+    </script>
+</body>
+</html>
